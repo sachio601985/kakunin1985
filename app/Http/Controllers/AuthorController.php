@@ -3,54 +3,37 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Author;
 
 class AuthorController extends Controller
 {
     public function index()
     {
-        $items = DB::table('authors')->get();
+        $items = Author::all();
         return view('index', ['items' => $items]);
     }
     public function add()
     {
         return view('add');
     }
-    public function create(Request $request)
+    public function find()
     {
+        return view('find', ['input' => '']);
+    }
+    public function search(Request $request)
+    {
+        $item = Author::where('name', 'LIKE',"%{$request->input}%")->first();
         $param = [
-            'name' => $request->name,
-            'age' => $request->age,
-            'nationality' => $request->nationality,
+            'input' => $request->input,
+            'item' => $item
         ];
-        DB::table('authors')->insert($param);
-        return redirect('/');
+        return view('find', $param);
     }
-    public function edit(Request $request)
+    public function bind(Author $author)
     {
-        $item = DB::table('authors')->where('id', $request->id)->first();
-        return view('edit', ['form' => $item]);
-    }
-    public function update(Request $request)
-    {
-        $param = [
-            'id' => $request->id,
-            'name' => $request->name,
-            'age' => $request->age,
-            'nationality' => $request->nationality,
+        $data = [
+            'item'=>$author,
         ];
-        DB::table('authors')->where('id', $request->id)->update($param);
-        return redirect('/');
-    }
-    public function delete(Request $request)
-    {
-        $item = DB::table('authors')->where('id', $request->id)->first();
-        return view('delete', ['form' => $item]);
-    }
-    public function remove(Request $request)
-    {
-        $param = ['id' => $request->id];
-        DB::table('authors')->where('id', $request->id)->delete();
-        return redirect('/');
+        return view('author.binds', $data);
     }
 }
